@@ -9,7 +9,7 @@
       <el-container>
         <!-- Control Panel -->
         <el-aside width="200px">
-          <ControlPanel @addShape="addShape" @clearCanvas="clearCanvas" />
+          <ControlPanel @addShape="addShape" @clearCanvas="clearCanvas"/>
         </el-aside>
 
         <!-- Drawing Area and Code Display -->
@@ -57,8 +57,8 @@ export default {
     };
   },
   methods: {
-    addShape(type) {
-      this.$refs.drawingCanvas.addShape(type);
+    addShape(selection, type) {
+      this.$refs.drawingCanvas.addShape(selection, type);
     },
     clearCanvas() {
       this.$refs.drawingCanvas.clearCanvas();
