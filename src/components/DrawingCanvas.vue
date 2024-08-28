@@ -15,6 +15,7 @@
 import { fabric } from 'fabric';
 import {NodeEnum} from '../js/utils.js'
 
+
 export default {
   data() {
     return {
