@@ -194,7 +194,7 @@ export default {
           this.canvas.off('mouse:move'); // 移除鼠标移动事件监听
           this.canvas.off('mouse:up'); // 移除鼠标抬起事件监听
         });
-      } else if (type === DrawTypeEnum.RENTANGLE) {
+      } else if (type === DrawTypeEnum.RECTANGLE) {
         this.selectionNodes = []; // 重置选择节点
         this.addNodeListener(); // 启动节点选择监听
         return;
@@ -233,6 +233,13 @@ export default {
         // 绘画不规则图形
         this.selectionNodes.push(point)
         this.drawCustomizeGraphics(this.selectionNodes)
+      } else if (this.drawingType === DrawTypeEnum.RECTANGLE) {
+        this.selectionNodes.push({x, y, point}); // 保存点的坐标和对象
+        if (this.selectionNodes.length === 2) {
+          this.drawRectangle(this.selectionNodes); // 画出矩形
+          this.selectionNodes.forEach(node => this.canvas.remove(node.point)); // 移除红点
+          this.selectionNodes = []; // 重置选择点
+        }
       }
     },
     drawRectangle(selectionNodes) {

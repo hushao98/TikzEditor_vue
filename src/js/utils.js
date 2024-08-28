@@ -14,7 +14,7 @@ export const DrawTypeEnum = {
     BROKEN_LINE: 'Broken Line',
     CURVE: 'Curve',
     CIRCLE: 'Circle',
-    RENTANGLE: 'Rectangle',
+    RECTANGLE: 'Rectangle',
     CUSTOMIZE_GRAPHICS: 'Customize Graphics',
 }
 
