@@ -13,8 +13,7 @@
 
 <script>
 import { fabric } from 'fabric';
-import {NodeEnum} from '../js/utils.js'
-
+import {NodeEnum, DrawTypeEnum, DrawShapeTypeEnum} from '../js/utils.js'
 
 export default {
   data() {
@@ -24,10 +23,12 @@ export default {
       useCustomColor: false, // 是否使用自定义颜色
       boundHandleClick: '',
       selectionNodes:[], // 用来画出直线的
-      drawingLineType: '',
+      drawingType: '',
       curveObject: '',
       customizeGraphicObject:'',
       fillColor:'#000000',
+      objectCountMap:{}, 
+      objectRelationMap:{}
     };
   },
   mounted() {
@@ -38,7 +39,7 @@ export default {
     initCanvas() {
       this.canvas = new fabric.Canvas('drawingCanvas', {
         backgroundColor: '#fff',
-        selection: true,
+        selection: true
       });
       this.canvas.renderAll();
       this.addObjectSelectionListener()
@@ -75,16 +76,16 @@ export default {
       let shape;
       // 如果使用默认颜色，则不指定颜色属性
       this.fillColor = this.useCustomColor ? this.selectedColor : 'black'; // 默认颜色设为黑色
-      this.moveSetting()
-      if (selection === 'Move') {
+      this.preAddSetting(type)
+      if (selection === DrawShapeTypeEnum.MOVE) {
         return;
-      } else if (selection === 'Add Node') {
+      } else if (selection === DrawShapeTypeEnum.ADD_NODE) {
         this.addNode()
         return;
-      } else if (selection === 'Add Line') {
+      } else if (selection === DrawShapeTypeEnum.ADD_LINE) {
         this.addLine(type)
         return
-      } else if (selection === 'Add Geometry') {
+      } else if (selection === DrawShapeTypeEnum.ADD_GEOMETRY) {
         shape = this.addGeometry(type)
       }
       if (shape) {
@@ -92,17 +93,28 @@ export default {
         this.canvas.renderAll();
       }
     },
-    /**
-     * 点击Move按钮的设置
-     */
-    moveSetting() {
-      // 如果处于画线段的状态，应该修改为不是画线段
-      if (this.drawingLineType) {
-        this.drawingLineType = '';
-        this.customizeGraphicObject = ''
-        this.curveObject = ''
-        this.selectionNodes = []
+
+     preAddSetting(type) {
+      // 第一次点击，初始化
+      if (null == this.drawingType) {
+        this.drawingType = type
+        return 
       }
+      if (null == this.objectCountMap[this.drawingType]) {
+        this.objectCountMap[this.drawingType] = 1
+      } else {
+        this.objectCountMap[this.drawingType] += 1
+      }
+      this.objectRelationMap[this.drawingType + '_' + this.objectCountMap[this.drawingType]] = {
+        type: this.drawingType,
+        selectionNodes: this.selectionNodes,
+        curveObject: this.curveObject,
+        customizeGraphicObject: this.customizeGraphicObject
+      }
+      this.drawingType = type;
+      this.customizeGraphicObject = ''
+      this.curveObject = ''
+      this.selectionNodes = []
     },
 
     /**
@@ -119,7 +131,7 @@ export default {
       this.selectionNodes = []
       let selectingNodeWaiting
       // 直线
-      if (type === 'Straight Line') {
+      if (type === DrawTypeEnum.STRAIGHT_LINE) {
         selectingNodeWaiting = new Promise((resolve) => {
           let timer = setInterval(() => {
             if (this.selectionNodes.length === 2) {
@@ -128,15 +140,12 @@ export default {
             }
           }, 100)
         })
-        
-      } else if (type === 'Broken Line') {
+      } else if (type === DrawTypeEnum.BROKEN_LINE) {
         // 折线
-        this.drawingLineType = type;
         this.addNodeListener()
         return
-      } else if (type === 'Curve') {
+      } else if (type === DrawTypeEnum.CURVE) {
         // 曲线
-        this.drawingLineType = type;
         this.addNodeListener()
         return
       }
@@ -148,27 +157,25 @@ export default {
      * 增加几何图形
      * @param type 
      */
-     addGeometry(type) {
-    if (type === 'Circle') {
+    addGeometry(type) {
+      if (type === DrawTypeEnum.CIRCLE) {
         let circle; // 声明变量以便在不同事件中使用
 
         // 添加鼠标按下事件
         this.canvas.on('mouse:down', (event) => {
-            const pointer = this.canvas.getPointer(event.e);
-            circle = new fabric.Circle({
-                radius: 0, // 初始半径为 0
-                fill: 'transparent', // 默认填充颜色为白色
-                stroke: 'black', // 边框颜色为黑色
-                strokeWidth: 2, // 边框宽度
-                left: pointer.x, // 设置圆心位置
-                top: pointer.y,
-                originX: 'center',
-                originY: 'center'
-            });
-
-            this.canvas.add(circle);
+          const pointer = this.canvas.getPointer(event.e);
+          circle = new fabric.Circle({
+              radius: 0, // 初始半径为 0
+              fill: 'transparent', // 默认填充颜色为白色
+              stroke: 'black', // 边框颜色为黑色
+              strokeWidth: 2, // 边框宽度
+              left: pointer.x, // 设置圆心位置
+              top: pointer.y,
+              originX: 'center',
+              originY: 'center'
+          });
+          this.canvas.add(circle);
         });
-
         // 添加鼠标移动事件
         this.canvas.on('mouse:move', (moveEvent) => {
             if (!circle) return; // 确保圆已创建
@@ -181,24 +188,22 @@ export default {
             circle.set({ radius: newRadius });
             this.canvas.renderAll();
         });
-
         // 添加鼠标抬起事件
         this.canvas.on('mouse:up', () => {
-            circle = null; // 重置圆
-            this.canvas.off('mouse:move'); // 移除鼠标移动事件监听
-            this.canvas.off('mouse:up'); // 移除鼠标抬起事件监听
+          circle = null; // 重置圆
+          this.canvas.off('mouse:move'); // 移除鼠标移动事件监听
+          this.canvas.off('mouse:up'); // 移除鼠标抬起事件监听
         });
-    } else if (type === 'Rectangle') {
-        this.drawingLineType = 'Rectangle'; // 设置绘制类型为矩形
+      } else if (type === DrawTypeEnum.RENTANGLE) {
         this.selectionNodes = []; // 重置选择节点
         this.addNodeListener(); // 启动节点选择监听
         return;
-      }else if (type === 'Customize Graphics') {
-        this.drawingLineType = type;
+      } else if (type === DrawTypeEnum.CUSTOMIZE_GRAPHICS) {
         this.addNodeListener();
         return;
-    }
-},
+      }
+    },
+    
     /**
      * 增加点的代码
      * @param event
@@ -212,44 +217,37 @@ export default {
           top: y,
           radius: NodeEnum.SIZE,
           fill: NodeEnum.COLOR,
-          selection: true 
+          selection: true,
+          label:'Node'
       });
       this.canvas.add(point)
-      
-      if (this.drawingLineType === 'Rectangle') {
-      this.selectionNodes.push({x, y, point}); // 保存点的坐标和对象
-      if (this.selectionNodes.length === 2) {
-        this.drawRectangle(this.selectionNodes); // 画出矩形
-        this.selectionNodes.forEach(node => this.canvas.remove(node.point)); // 移除红点
-        this.selectionNodes = []; // 重置选择点
-      }
       // 如果正在画折线
-      }else if(this.drawingLineType === 'Broken Line') {
+      if (this.drawingType === DrawTypeEnum.BROKEN_LINE) {
         this.selectionNodes.push(point)
         this.drawBrokenLine(this.selectionNodes)
-      } else if (this.drawingLineType === 'Curve') {
+      } else if (this.drawingType === DrawTypeEnum.CURVE) {
         // 绘画曲线
         this.selectionNodes.push(point)
         this.drawCurveLine(this.selectionNodes)
-      } else if (this.drawingLineType === 'Customize Graphics') {
+      } else if (this.drawingType === DrawTypeEnum.CUSTOMIZE_GRAPHICS) {
         // 绘画不规则图形
         this.selectionNodes.push(point)
         this.drawCustomizeGraphics(this.selectionNodes)
       }
     },
-
     drawRectangle(selectionNodes) {
-  const [start, end] = selectionNodes;
-  const rect = new fabric.Rect({
-    left: Math.min(start.x, end.x),
-    top: Math.min(start.y, end.y),
-    width: Math.abs(start.x - end.x),
-    height: Math.abs(start.y - end.y),
-    fill: this.useCustomColor ? this.selectedColor : this.fillColor, // 修复颜色选择问题
-  });
-  this.canvas.add(rect);
-  this.canvas.renderAll();
-},
+      const [start, end] = selectionNodes;
+      const rect = new fabric.Rect({
+        left: Math.min(start.x, end.x),
+        top: Math.min(start.y, end.y),
+        width: Math.abs(start.x - end.x),
+        height: Math.abs(start.y - end.y),
+        fill: this.useCustomColor ? this.selectedColor : this.fillColor, // 修复颜色选择问题
+      });
+      this.canvas.add(rect);
+      this.canvas.renderAll();
+    },
+
     /**
      *  画两点之间的直线的代码
      */
@@ -360,9 +358,14 @@ export default {
       this.canvas.clear();
       this.canvas.renderAll();
     },
+    commitToServe() {
+      this.preAddSetting(this.drawingType)
+    },
     getDrawingData() {
       return {
         useCustomColor: this.useCustomColor,
+        objectRelationMap: this.objectRelationMap,
+        direction: 'bottom',
         objects: this.canvas.toJSON().objects,
       };
     },

@@ -64,7 +64,10 @@ export default {
       this.$refs.drawingCanvas.clearCanvas();
     },
     sendToBackend() {
+      this.$refs.drawingCanvas.commitToServe();
       const drawingData = this.$refs.drawingCanvas.getDrawingData();
+
+      console.log(drawingData)
 
       fetch('http://127.0.0.1:5000/api/generate-tikz', {
         method: 'POST',
