@@ -147,28 +147,57 @@ export default {
      * 增加几何图形
      * @param type 
      */
-    addGeometry(type) {
-      if (type === 'Circle') {
-        return new fabric.Circle({
-          radius: 50,
-          fill: this.useCustomColor ? this.fillColor : "black", // 不使用自定义颜色时，不设置填充颜色
-          left: 100,
-          top: 100,
+     addGeometry(type) {
+    if (type === 'Circle') {
+        let circle; // 声明变量以便在不同事件中使用
+
+        // 添加鼠标按下事件
+        this.canvas.on('mouse:down', (event) => {
+            const pointer = this.canvas.getPointer(event.e);
+            circle = new fabric.Circle({
+                radius: 0, // 初始半径为 0
+                fill: 'transparent', // 默认填充颜色为白色
+                stroke: 'black', // 边框颜色为黑色
+                strokeWidth: 2, // 边框宽度
+                left: pointer.x, // 设置圆心位置
+                top: pointer.y,
+                originX: 'center',
+                originY: 'center'
+            });
+
+            this.canvas.add(circle);
         });
-      } else if (type === 'Rectangle') {
-        return new fabric.Rect({
-          width: 100,
-          height: 50,
-          fill: this.useCustomColor ? this.fillColor : "black",
-          left: 150,
-          top: 150,
-        })
-      } else if (type === 'Customize Graphics') {
+
+        // 添加鼠标移动事件
+        this.canvas.on('mouse:move', (moveEvent) => {
+            if (!circle) return; // 确保圆已创建
+
+            const movePointer = this.canvas.getPointer(moveEvent.e);
+            const dx = movePointer.x - circle.left;
+            const dy = movePointer.y - circle.top;
+            const newRadius = Math.sqrt(dx * dx + dy * dy);
+
+            circle.set({ radius: newRadius });
+            this.canvas.renderAll();
+        });
+
+        // 添加鼠标抬起事件
+        this.canvas.on('mouse:up', () => {
+            circle = null; // 重置圆
+            this.canvas.off('mouse:move'); // 移除鼠标移动事件监听
+            this.canvas.off('mouse:up'); // 移除鼠标抬起事件监听
+        });
+    } else if (type === 'Rectangle') {
+        this.drawingLineType = 'Rectangle'; // 设置绘制类型为矩形
+        this.selectionNodes = []; // 重置选择节点
+        this.addNodeListener(); // 启动节点选择监听
+        return;
+      }else if (type === 'Customize Graphics') {
         this.drawingLineType = type;
-        this.addNodeListener()
-        return
-      }
-    },
+        this.addNodeListener();
+        return;
+    }
+},
     /**
      * 增加点的代码
      * @param event
@@ -185,8 +214,16 @@ export default {
           selection: true 
       });
       this.canvas.add(point)
+      
+      if (this.drawingLineType === 'Rectangle') {
+      this.selectionNodes.push({x, y, point}); // 保存点的坐标和对象
+      if (this.selectionNodes.length === 2) {
+        this.drawRectangle(this.selectionNodes); // 画出矩形
+        this.selectionNodes.forEach(node => this.canvas.remove(node.point)); // 移除红点
+        this.selectionNodes = []; // 重置选择点
+      }
       // 如果正在画折线
-      if (this.drawingLineType === 'Broken Line') {
+      }else if(this.drawingLineType === 'Broken Line') {
         this.selectionNodes.push(point)
         this.drawBrokenLine(this.selectionNodes)
       } else if (this.drawingLineType === 'Curve') {
@@ -199,6 +236,19 @@ export default {
         this.drawCustomizeGraphics(this.selectionNodes)
       }
     },
+
+    drawRectangle(selectionNodes) {
+  const [start, end] = selectionNodes;
+  const rect = new fabric.Rect({
+    left: Math.min(start.x, end.x),
+    top: Math.min(start.y, end.y),
+    width: Math.abs(start.x - end.x),
+    height: Math.abs(start.y - end.y),
+    fill: this.useCustomColor ? this.selectedColor : this.fillColor, // 修复颜色选择问题
+  });
+  this.canvas.add(rect);
+  this.canvas.renderAll();
+},
     /**
      *  画两点之间的直线的代码
      */
