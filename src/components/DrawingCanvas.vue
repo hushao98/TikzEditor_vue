@@ -27,14 +27,13 @@ export default {
       curveObject: '',
       customizeGraphicObject:'',
       fillColor:'#000000',
-      objectCountMap:{}, 
+      objectCountMap:{},
       objectRelationMap:{}
     };
   },
   mounted() {
     this.initCanvas();
   },
-  
   methods: {
     initCanvas() {
       this.canvas = new fabric.Canvas('drawingCanvas', {
@@ -65,8 +64,8 @@ export default {
     },
     /**
      * 总调度函数
-     * @param selection 
-     * @param type 
+     * @param selection
+     * @param type
      */
     addShape(selection, type) {
       if (this.boundHandleClick) {
@@ -238,7 +237,6 @@ export default {
         if (this.selectionNodes.length === 2) {
           this.drawRectangle(this.selectionNodes); // 画出矩形
           this.selectionNodes.forEach(node => this.canvas.remove(node.point)); // 移除红点
-          this.selectionNodes = []; // 重置选择点
         }
       }
     },
