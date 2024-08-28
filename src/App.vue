@@ -9,7 +9,9 @@
       <el-container>
         <!-- Control Panel -->
         <el-aside width="200px">
-          <ControlPanel @addShape="addShape" @clearCanvas="clearCanvas"/>
+          <ControlPanel @addShape="addShape" @clearCanvas="clearCanvas" @addPoint="addPoint"/>
+<!--          <ControlPanel @addPoint="addPoint" @removePoint="removePoint" />-->
+<!--          <ControlPanel @updatePoint="updatePoint"/>-->
         </el-aside>
 
         <!-- Drawing Area and Code Display -->
@@ -19,6 +21,7 @@
               <!-- Drawing Area -->
               <el-col :span="12">
                 <DrawingCanvas ref="drawingCanvas" />
+                <LineChart ref="lineChart"/>
               </el-col>
 
               <!-- TikZ Code Display Area -->
@@ -45,11 +48,13 @@
 <script>
 import DrawingCanvas from './components/DrawingCanvas.vue';
 import ControlPanel from './components/ControlPanel.vue';
+import LineChart from './components/LineChart.vue'
 
 export default {
   components: {
     DrawingCanvas,
     ControlPanel,
+    LineChart,
   },
   data() {
     return {
@@ -57,8 +62,8 @@ export default {
     };
   },
   methods: {
-    addShape(selection, type) {
-      this.$refs.drawingCanvas.addShape(selection, type);
+    addShape(type) {
+      this.$refs.drawingCanvas.addShape(type);
     },
     clearCanvas() {
       this.$refs.drawingCanvas.clearCanvas();
@@ -84,6 +89,15 @@ export default {
             console.error('Error:', error);
           });
     },
+    updateChart(){
+      this.$refs.lineChart.updateChart();
+    },
+    // removePoint() {
+    //   this.$refs.lineChart.removePoint();
+    // },
+    // updatePoint() {
+    //   this.$refs.lineChart.updatePoint();
+    // }
   },
 };
 </script>
