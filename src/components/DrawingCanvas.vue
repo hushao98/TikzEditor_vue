@@ -25,6 +25,7 @@ export default {
       selectionNodes:[], // 用来画出直线的
       drawingLineType: '',
       curveObject: '',
+      customizeGraphicObject:'',
       fillColor:'#000000',
     };
   },
@@ -73,15 +74,15 @@ export default {
       let shape;
       // 如果使用默认颜色，则不指定颜色属性
       this.fillColor = this.useCustomColor ? this.selectedColor : 'black'; // 默认颜色设为黑色
-
+      this.moveSetting()
       if (selection === 'Move') {
-        this.moveSetting()
         return;
       } else if (selection === 'Add Node') {
         this.addNode()
         return;
       } else if (selection === 'Add Line') {
-        shape = this.addLine(type)
+        this.addLine(type)
+        return
       } else if (selection === 'Add Geometry') {
         shape = this.addGeometry(type)
       }
@@ -97,6 +98,8 @@ export default {
       // 如果处于画线段的状态，应该修改为不是画线段
       if (this.drawingLineType) {
         this.drawingLineType = '';
+        this.customizeGraphicObject = ''
+        this.curveObject = ''
         this.selectionNodes = []
       }
     },
@@ -120,7 +123,6 @@ export default {
           let timer = setInterval(() => {
             if (this.selectionNodes.length === 2) {
               clearInterval(timer)
-              console.log( this.selectionNodes)
               resolve([this.drawStraightLine, this.selectionNodes])
             }
           }, 100)
@@ -149,7 +151,7 @@ export default {
       if (type === 'Circle') {
         return new fabric.Circle({
           radius: 50,
-          fill: this.useCustomColor ? this.fillColor : null, // 不使用自定义颜色时，不设置填充颜色
+          fill: this.useCustomColor ? this.fillColor : "black", // 不使用自定义颜色时，不设置填充颜色
           left: 100,
           top: 100,
         });
@@ -157,11 +159,15 @@ export default {
         return new fabric.Rect({
           width: 100,
           height: 50,
-          fill: this.useCustomColor ? this.fillColor : null,
+          fill: this.useCustomColor ? this.fillColor : "black",
           left: 150,
           top: 150,
         })
-      } 
+      } else if (type === 'Customize Graphics') {
+        this.drawingLineType = type;
+        this.addNodeListener()
+        return
+      }
     },
     /**
      * 增加点的代码
@@ -184,8 +190,13 @@ export default {
         this.selectionNodes.push(point)
         this.drawBrokenLine(this.selectionNodes)
       } else if (this.drawingLineType === 'Curve') {
+        // 绘画曲线
         this.selectionNodes.push(point)
-        this.addPolyLine(this.selectionNodes)
+        this.drawCurveLine(this.selectionNodes)
+      } else if (this.drawingLineType === 'Customize Graphics') {
+        // 绘画不规则图形
+        this.selectionNodes.push(point)
+        this.drawCustomizeGraphics(this.selectionNodes)
       }
     },
     /**
@@ -213,7 +224,7 @@ export default {
       }
       this.drawStraightLine([selectionNodes[len - 2], selectionNodes[len - 1]])
     },
-    addPolyLine(selectionNodes) {
+    drawCurveLine(selectionNodes) {
       let len = selectionNodes.length
       if ( len < 2) {
         return
@@ -270,6 +281,29 @@ export default {
         pathData += ' L ' + splinePoints[i].x + ' ' + splinePoints[i].y;
       }
       return pathData
+    },
+    drawCustomizeGraphics(selectionNodes) {
+      let len = selectionNodes.length
+      if ( len < 2) {
+        return
+      }
+      if (this.customizeGraphicObject) {
+        this.canvas.remove(this.customizeGraphicObject)
+      }
+      let nodeList = []
+      for (let i = 0; i < len; i++) {
+        nodeList.push({x: selectionNodes[i].left  + NodeEnum.SIZE, y: selectionNodes[i].top +  + NodeEnum.SIZE})
+      }
+      // 收尾相连
+      nodeList.push(nodeList[0])
+      let graph = new fabric.Polyline(nodeList, {
+        fill: this.useCustomColor ? this.fillColor : 'black',
+        stroke: this.useCustomColor ? this.fillColor : 'black',
+        strokeWidth: 1,
+      })
+      this.canvas.add(graph)
+      this.customizeGraphicObject = graph
+      this.canvas.renderAll()
     },
     clearCanvas() {
       this.canvas.clear();
