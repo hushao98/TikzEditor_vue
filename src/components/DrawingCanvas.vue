@@ -50,11 +50,11 @@ export default {
     addObjectSelectionListener() {
       // 监听 双击选中对象 事件
       this.canvas.on('mouse:dblclick', function(event) {
-        // 获取被选中的对象
-        const selectedObject = event.target;
-        this.selectionNodes.push(selectedObject)
-        // 更改被选中对象的颜色
-        // selectedObject.set('fill', 'blue');
+          // 获取被选中的对象
+          const selectedObject = event.target;
+          this.selectionNodes.push(selectedObject)
+          // 更改被选中对象的颜色
+          // selectedObject.set('fill', 'blue');
       }.bind(this));
     },
     addNodeListener() {
@@ -62,6 +62,11 @@ export default {
       // this.canvas.addEven
       this.canvas.on("mouse:down", this.boundHandleClick)
     },
+    /**
+     * 总调度函数
+     * @param selection
+     * @param type
+     */
     addShape(selection, type) {
       if (this.boundHandleClick) {
         this.canvas.off("mouse:down", this.boundHandleClick)
@@ -369,13 +374,6 @@ export default {
         objects: this.canvas.toJSON().objects,
       };
     },
-    // addPoints(){
-    //   var canvas = document.getElementById('myCanvas');
-    //   var ctx = canvas.getContext('2d');
-    //   ctx.moveTo(50, 20);
-    //   ctx.quadraticCurveTo(100, 100, 150, 20);
-    //   ctx.stroke();
-    // },
   },
 };
 </script>

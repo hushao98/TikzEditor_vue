@@ -9,7 +9,7 @@
       <el-container>
         <!-- Control Panel -->
         <el-aside width="200px">
-          <ControlPanel @addShape="addShape" @clearCanvas="clearCanvas" @addPoint="addPoint"/>
+          <ControlPanel @addShape="addShape" @clearCanvas="clearCanvas" @addCharts="addCharts"/>
 <!--          <ControlPanel @addPoint="addPoint" @removePoint="removePoint" />-->
 <!--          <ControlPanel @updatePoint="updatePoint"/>-->
         </el-aside>
@@ -62,8 +62,11 @@ export default {
     };
   },
   methods: {
-    addShape(type) {
-      this.$refs.drawingCanvas.addShape(type);
+    addShape(selection, type) {
+      this.$refs.drawingCanvas.addShape(selection, type);
+    },
+    addCharts() {
+      this.$refs.lineChart.updateChart()
     },
     clearCanvas() {
       this.$refs.drawingCanvas.clearCanvas();
@@ -89,15 +92,6 @@ export default {
             console.error('Error:', error);
           });
     },
-    updateChart(){
-      this.$refs.lineChart.updateChart();
-    },
-    // removePoint() {
-    //   this.$refs.lineChart.removePoint();
-    // },
-    // updatePoint() {
-    //   this.$refs.lineChart.updatePoint();
-    // }
   },
 };
 </script>
