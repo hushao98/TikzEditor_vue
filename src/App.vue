@@ -37,6 +37,18 @@
                 </div>
                 <el-button type="primary" @click="sendToBackend">Generate TikZ Code</el-button>
               </el-col>
+              <el-col :span="12">
+                <div id="tikz-code-area">
+                  <h3>TikZ Code</h3>
+                  <el-input
+                      type="textarea"
+                      :rows="15"
+                      v-model="tikzCode"
+                      readonly>
+                  </el-input>
+                </div>
+                <el-button type="primary" @click="drawFunction">Draw Function Image</el-button>
+              </el-col>
             </el-row>
           </el-main>
         </el-container>
@@ -67,6 +79,27 @@ export default {
     },
     addCharts() {
       this.$refs.lineChart.updateChart()
+    },
+    drawFunction(){
+      this.$refs.drawingCanvas.commitToServe();
+      const drawingData = this.$refs.drawingCanvas.getDrawingData();
+
+      console.log(drawingData)
+
+      fetch('http://127.0.0.1:5000/api/generate-graphic', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(drawingData),
+      })
+          .then(response => response.json())
+          .then(data => {
+            this.$refs.lineChart.updateChart(data.type)
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
     },
     clearCanvas() {
       this.$refs.drawingCanvas.clearCanvas();
