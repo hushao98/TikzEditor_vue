@@ -161,7 +161,7 @@ export default {
         this.drawingType = type
         return 
       }
-      if (this.drawingType!==DrawTypeEnum.NODE && this.drawingType!==DrawTypeEnum.MOVE) {
+      if (this.drawingType!==DrawTypeEnum.NODE && this.drawingType!==DrawTypeEnum.MOVE && ''!== this.nowObj) {
         this.updateRelationMap()
       }
       this.drawingType = type
@@ -191,7 +191,7 @@ export default {
       }
     },
 
-    updateNodeRelationMap(type) {
+    updateNodeRelationMap(type, point) {
       if (null == this.objectCountMap[type]) {
           this.objectCountMap[type] = 1
       } else {
@@ -199,7 +199,7 @@ export default {
       }
       this.objectRelationMap[type + '_' + this.objectCountMap[type]] = {
         type: type,
-        selectionNodes: [],
+        selectionNodes: [point],
         nowObj: '',
       }
     },
@@ -266,7 +266,7 @@ export default {
      */
     addGeometry(type) {
       if (type === DrawTypeEnum.CIRCLE) {
-        this.addCircle()
+        this.addNodeListener()
       } else if (type === DrawTypeEnum.RECTANGLE) {
         this.addNodeListener(); // 启动节点选择监听
         return;
@@ -276,24 +276,22 @@ export default {
       }
     },
 
-    addCircle() {
+    addCircle(selectionNodes) {
       let circle; // 声明变量以便在不同事件中使用
-      // 添加鼠标按下事件
-      this.canvas.on('mouse:down', (event) => {
-        const pointer = this.canvas.getPointer(event.e);
-        circle = new fabric.Circle({
-            radius: 0, // 初始半径为 0
-            fill: 'transparent', // 默认填充颜色为白色
-            stroke: 'black', // 边框颜色为黑色
-            strokeWidth: 2, // 边框宽度
-            left: pointer.x, // 设置圆心位置
-            top: pointer.y,
-            originX: 'center',
-            originY: 'center',
-            label: FabricTypeEnum.CIRCLE
-          });
-          this.canvas.add(circle);
+      let pointer = selectionNodes[0]
+      let node = {left: pointer.left, top: pointer.top, radius: '', relationship: []}
+      circle = new fabric.Circle({
+        radius: 0, // 初始半径为 0
+        fill: 'transparent', // 默认填充颜色为白色
+        stroke: 'black', // 边框颜色为黑色
+        strokeWidth: 2, // 边框宽度
+        left: node.left, // 设置圆心位置
+        top: node.top,
+        originX: 'center',
+        originY: 'center',
+        label: FabricTypeEnum.CIRCLE
       });
+      this.canvas.add(circle);
       // 添加鼠标移动事件
       this.canvas.on('mouse:move', (moveEvent) => {
         if (!circle) return; // 确保圆已创建
@@ -308,10 +306,14 @@ export default {
       });
       // 添加鼠标抬起事件
       this.canvas.on('mouse:up', () => {
+        this.nowObj = circle
+        node.radius = circle.radius
         circle = null; // 重置圆
         this.canvas.off('mouse:move'); // 移除鼠标移动事件监听
         this.canvas.off('mouse:up'); // 移除鼠标抬起事件监听
       });
+      this.selectionNodes = []
+      this.selectionNodes.push(node)
     },
     
     /**
@@ -322,7 +324,7 @@ export default {
       const pointer = this.canvas.getPointer(event.e)
       let point = this.drawNode([pointer.x, pointer.y])
       if (this.drawingType === DrawTypeEnum.NODE) {
-        this.updateNodeRelationMap(DrawTypeEnum.NODE)
+        this.updateNodeRelationMap(DrawTypeEnum.NODE, point)
       }
       this.canvas.add(point)
       // 如果正在画折线
@@ -341,8 +343,12 @@ export default {
         this.selectionNodes.push(point); // 保存点的坐标和对象
         if (this.selectionNodes.length === 2) {
           this.drawRectangle(this.selectionNodes); // 画出矩形
-          // this.selectionNodes.forEach(node => this.canvas.remove(node.point)); // 移除红点
+          this.removeNodeListener()
         }
+      } else if (this.drawingType === DrawTypeEnum.CIRCLE) {
+        this.selectionNodes.push(point)
+        this.addCircle(this.selectionNodes)
+        this.removeNodeListener()
       }
     },
 
