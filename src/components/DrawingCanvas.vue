@@ -77,6 +77,7 @@ export default {
         const selectedObject = event.target;
         if (!this.isMoving) {
           this.preAddSetting()
+          // this.removeOldObject(this.nowObj)
           this.isMoving = true
         }
         this.updateGrophicsWhenMoving(selectedObject)
@@ -174,9 +175,9 @@ export default {
     updateRelationMap () {
       if (null == this.objectCountMap[this.drawingType]) {
           this.objectCountMap[this.drawingType] = 1
-        } else {
+      } else {
           this.objectCountMap[this.drawingType] += 1
-        }
+      }
       let relationName = this.drawingType + '_' + this.objectCountMap[this.drawingType]
       this.objectRelationMap[relationName] = {
         type: this.drawingType,
@@ -187,6 +188,19 @@ export default {
         // 添加relationship属性
         let node = this.selectionNodes[i]
         node.relationship.push(relationName)
+      }
+    },
+
+    updateNodeRelationMap(type) {
+      if (null == this.objectCountMap[type]) {
+          this.objectCountMap[type] = 1
+      } else {
+          this.objectCountMap[type] += 1
+      }
+      this.objectRelationMap[type + '_' + this.objectCountMap[type]] = {
+        type: type,
+        selectionNodes: [],
+        nowObj: '',
       }
     },
 
@@ -307,7 +321,9 @@ export default {
     handleClick(event) {
       const pointer = this.canvas.getPointer(event.e)
       let point = this.drawNode([pointer.x, pointer.y])
-      this.updateRelationMap()
+      if (this.drawingType === DrawTypeEnum.NODE) {
+        this.updateNodeRelationMap(DrawTypeEnum.NODE)
+      }
       this.canvas.add(point)
       // 如果正在画折线
       if (this.drawingType === DrawTypeEnum.BROKEN_LINE) {
