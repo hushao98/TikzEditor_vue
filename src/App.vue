@@ -89,6 +89,28 @@ export default {
     updateChart(type){
       this.$refs.lineChart.updateChart(type)
     },
+    addCharts() {
+      this.$refs.lineChart.updateChart()
+    },
+    drawFunction(){
+      this.$refs.drawingCanvas.commitToServe();
+      const drawingData = this.$refs.drawingCanvas.getDrawingData();
+      console.log(drawingData)
+      fetch('http://127.0.0.1:5000/api/generate-graphic', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(drawingData),
+      })
+          .then(response => response.json())
+          .then(data => {
+            this.$refs.lineChart.updateChart(data.type)
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
+    },
     clearCanvas() {
       this.$refs.drawingCanvas.clearCanvas();
     },
