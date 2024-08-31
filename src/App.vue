@@ -47,7 +47,6 @@
                       readonly>
                   </el-input>
                 </div>
-                <el-button type="primary" @click="PDFViewer">PDF Show</el-button>
               </el-col>
             </el-row>
           </el-main>
