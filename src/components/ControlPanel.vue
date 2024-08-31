@@ -15,7 +15,13 @@
         <el-menu-item @click="emitShape('Add Geometry', 'Rectangle')">Add Rectangle(矩形)</el-menu-item>
         <el-menu-item @click="emitShape('Add Geometry', 'Customize Graphics')">Add Customize Graphics(自定义图形)</el-menu-item>
       </el-submenu>
-      <el-menu-item @click="emitCharts('UpdateChart')">Update Chart</el-menu-item>
+      <el-submenu index="3">
+        <template slot="title">Draw Function Image</template>
+        <el-menu-item @click="emitCharts('sin')">sin(x)</el-menu-item>
+        <el-menu-item @click="emitCharts('cos')">cos(x)</el-menu-item>
+        <el-menu-item @click="emitCharts('tan')">tan(x)</el-menu-item>
+      </el-submenu>
+<!--      <el-menu-item @click="emitCharts('UpdateChart')">Update Chart</el-menu-item>-->
       <el-menu-item @click="emitClear">Clear Canvas</el-menu-item>
     </el-menu>
 
@@ -31,9 +37,9 @@ export default {
     emitClear() {
       this.$emit('clearCanvas');
     },
-    emitCharts(){
-      this.$emit('addCharts');
-    }
+    emitCharts(type){
+      this.$emit('updateChart',type);
+    },
   },
 };
 </script>

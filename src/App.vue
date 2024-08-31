@@ -9,7 +9,7 @@
       <el-container>
         <!-- Control Panel -->
         <el-aside width="200px">
-          <ControlPanel @addShape="addShape" @clearCanvas="clearCanvas" @addCharts="addCharts"/>
+          <ControlPanel @addShape="addShape" @clearCanvas="clearCanvas" @updateChart="updateChart"/>
 <!--          <ControlPanel @addPoint="addPoint" @removePoint="removePoint" />-->
 <!--          <ControlPanel @updatePoint="updatePoint"/>-->
         </el-aside>
@@ -47,7 +47,6 @@
                       readonly>
                   </el-input>
                 </div>
-                <el-button type="primary" @click="drawFunction">Draw Function Image</el-button>
               </el-col>
             </el-row>
           </el-main>
@@ -77,29 +76,8 @@ export default {
     addShape(selection, type) {
       this.$refs.drawingCanvas.addShape(selection, type);
     },
-    addCharts() {
-      this.$refs.lineChart.updateChart()
-    },
-    drawFunction(){
-      this.$refs.drawingCanvas.commitToServe();
-      const drawingData = this.$refs.drawingCanvas.getDrawingData();
-
-      console.log(drawingData)
-
-      fetch('http://127.0.0.1:5000/api/generate-graphic', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(drawingData),
-      })
-          .then(response => response.json())
-          .then(data => {
-            this.$refs.lineChart.updateChart(data.type)
-          })
-          .catch(error => {
-            console.error('Error:', error);
-          });
+    updateChart(type){
+      this.$refs.lineChart.updateChart(type)
     },
     clearCanvas() {
       this.$refs.drawingCanvas.clearCanvas();
