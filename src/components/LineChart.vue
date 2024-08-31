@@ -33,13 +33,13 @@ export default {
           containLabel: true
         },
         xAxis: { // X轴配置
-          min: 0,
+          min: -3,
           max: 3,
           type: 'value',
           axisLine: {onZero: false}
         },
         yAxis: { // Y轴配置
-          min: 0,
+          min: -1,
           max: 1,
           type: 'value',
           axisLine: {onZero: false}
@@ -54,7 +54,7 @@ export default {
       };
       chart.setOption(option);
 
-      for (let x = 0; x <= 3; x += 0.1) {
+      for (let x = -3; x <= 3; x += 0.1) {
         var pointParm;
         if (type === 'sin') {
           pointParm = [x, Math.sin(x)]
@@ -73,33 +73,7 @@ export default {
           }
         ]
       });
-
-
-      // var zr = chart.getZr(); // 获取ECharts实例的渲染器
-      //
-      // zr.on('click', function (params) { // 监听画布的点击事件
-      //   var pointInPixel = [params.offsetX, params.offsetY]; // 获取点击位置的像素坐标
-      //   var pointInGrid = chart.convertFromPixel('grid', pointInPixel); // 像素坐标转换为图表数据坐标
-      //
-      //   // 判断点击位置是否在直角坐标系(grid)内
-      //   if (chart.containPixel('grid', pointInPixel)) {
-      //     data.push(pointInGrid); // 将新拐点的数据添加到数据集中
-      //     chart.setOption({ // 刷新ECharts实例，显示新的拐点
-      //       series: [
-      //         {
-      //           id: 'a',
-      //           data: data
-      //         }
-      //       ]
-      //     });
-      //   }
-      // });
     },
-    // addPoints(x,y){
-    //   this.datasets.labels.push(`Point ${this.nextPointIndex}`);
-    //   this.datasets[0].data.push(Math.floor(Math.random() * 50));
-    //   this.nextPointIndex++;
-    // }
   }
 };
 
