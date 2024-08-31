@@ -279,6 +279,7 @@ export default {
     addCircle(selectionNodes) {
       let circle; // 声明变量以便在不同事件中使用
       let pointer = selectionNodes[0]
+      pointer.fill = 'transparent'
       let node = {left: pointer.left, top: pointer.top, radius: '', relationship: []}
       circle = new fabric.Circle({
         radius: 0, // 初始半径为 0
