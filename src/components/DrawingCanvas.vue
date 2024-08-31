@@ -595,6 +595,7 @@ export default {
     getDrawingData() {
       return {
         useCustomColor: this.useCustomColor,
+        objectCountMap: this.objectCountMap,
         objectRelationMap: this.objectRelationMap,
         originY: 'bottom',
         objects: this.canvas.toJSON().objects,
