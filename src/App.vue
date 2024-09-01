@@ -44,7 +44,7 @@
                   <el-input
                       type="textarea"
                       :rows="15"
-                      v-model="tikzCode"
+                      v-model="commitCode"
                       >
                   </el-input>
                 </div>
@@ -78,22 +78,8 @@ export default {
   },
   data() {
     return {
-      tikzCode: '\\documentclass{standalone}'+'\n'+
-                '\\usepackage{tikz}'+'\n'+
-                '\\begin{document}'+'\n'+
-                '\\begin{tikzpicture}'+'\n' +
-          '    \\draw (0,0) rectangle (2,2);' + '\n' +
-          '    \\node at (1,1) {Square};' + '\n' +
-          '    \\draw (4,1) circle (1);' + '\n' +
-          '    \\node at (4,1) {Circle};' + '\n' +
-          '\\end{tikzpicture}'+ '\n' +
-          '\\end{document}',
-      // tikzCode: '\\\\begin{tikzpicture}\\n'+
-      //     '    \\\\draw (0,0) rectangle (2,2);\\n' +
-      //     '    \\\\node at (1,1) {Square};\\n' +
-      //     '    \\\\draw (4,1) circle (1);\\n' +
-      //     '    \\\\node at (4,1) {Circle};\\n' +
-      //     '\\\\end{tikzpicture}',
+      tikzCode: '',
+      commitCode:' ',
     };
   },
   methods: {
@@ -107,8 +93,7 @@ export default {
       this.$refs.drawingCanvas.clearCanvas();
     },
     fetchPDF() {
-      // this.tikzCode = '{"tikz_code":"'+this.tikzCode+'"}';
-      this.$refs.pdfViewer.fetchPDF(this.tikzCode);
+      this.$refs.pdfViewer.fetchPDF(this.commitCode);
     },
     sendToBackend() {
       this.$refs.drawingCanvas.commitToServe();
