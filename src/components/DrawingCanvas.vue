@@ -56,9 +56,38 @@ export default {
       
       window.addEventListener('resize', this.resizeCanvas)
       this.resizeCanvas(this.canvas)
+      this.addGrid();  // 添加这行调用网格线绘制
       this.canvas.renderAll()
       this.addObjectSelectionListener()
       this.boundHandleClick = this.handleClick.bind(this)
+    },
+    // 添加网格线
+    addGrid() {
+      const gridSize = 10; // 设置网格大小为10，尽量和图案的坐标left、top匹配
+      const canvasWidth = this.canvas.getWidth();
+      const canvasHeight = this.canvas.getHeight();
+
+      // 清除现有的网格线以避免重复绘制
+      this.canvas.getObjects('line').forEach(line => this.canvas.remove(line));
+
+      // 绘制纵向和横向的网格线
+      for (let i = 0; i < (canvasWidth / gridSize); i++) {
+        // 绘制垂直线
+        this.canvas.add(new fabric.Line([i * gridSize, 0, i * gridSize, canvasHeight], {
+          stroke: '#e0e0e0',
+          selectable: false,
+          evented: false,
+          excludeFromExport: true, // 排除在导出时忽略这些线
+        }));
+
+        // 绘制水平线
+        this.canvas.add(new fabric.Line([0, i * gridSize, canvasWidth, i * gridSize], {
+          stroke: '#e0e0e0',
+          selectable: false,
+          evented: false,
+          excludeFromExport: true,
+        }));
+      }
     },
     /**
      * 对象被选中的监听器
@@ -290,7 +319,7 @@ export default {
         top: node.top,
         originX: 'center',
         originY: 'center',
-        label: FabricTypeEnum.CIRCLE
+        label: FabricTypeEnum.CIRCLE,
       });
       this.canvas.add(circle);
       // 添加鼠标移动事件
@@ -502,8 +531,8 @@ export default {
       // 收尾相连
       nodeList.push(nodeList[0])
       let graph = new fabric.Polyline(nodeList, {
-        fill: this.useCustomColor ? this.fillColor : 'black',
-        stroke: this.useCustomColor ? this.fillColor : 'black',
+        fill: 'transparent', // 默认填充颜色为白色
+        stroke: 'black', // 边框颜色为黑色
         strokeWidth: 1,
         originX: 'center',
         originY: 'center',
@@ -529,7 +558,8 @@ export default {
         top: Math.min(start.top, end.top),
         width: Math.abs(start.left - end.left),
         height: Math.abs(start.top - end.top),
-        fill: this.useCustomColor ? this.selectedColor : this.fillColor, // 修复颜色选择问题
+        fill: 'transparent', // 默认填充颜色为白色
+        stroke: 'black', // 边框颜色为黑色
         label: FabricTypeEnum.RECTANGLE,
         selectable:GemoetryEnum.SELECTION
       });
