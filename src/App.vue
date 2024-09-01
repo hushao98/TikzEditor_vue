@@ -137,6 +137,19 @@ export default {
 }
 
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: #333;
+}
+
+el-header {
+  background-color: #f8f8f8;
+  border-bottom: 1px solid #e1e1e1;
+}
+
+#tikz-code-area {
+  background-color: #f5f5f7;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 </style>
