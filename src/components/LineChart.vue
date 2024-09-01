@@ -16,6 +16,10 @@ export default {
       const symbolSize = 1; // 设置拐点的大小
       const data = [ // 初始的数据点数组
       ];
+      let Xmin = -6;
+      let Xmax = 6;
+      let Ymin = -2;
+      let Ymax = 2;
       const option = {
         title: { // 标题配置
           text: 'Function Image'
@@ -33,14 +37,14 @@ export default {
           containLabel: true
         },
         xAxis: { // X轴配置
-          min: -3,
-          max: 3,
+          min: Xmin,
+          max: Xmax,
           type: 'value',
           axisLine: {onZero: false}
         },
         yAxis: { // Y轴配置
-          min: -1,
-          max: 1,
+          min: Ymin,
+          max: Ymax,
           type: 'value',
           axisLine: {onZero: false}
         },
@@ -54,7 +58,7 @@ export default {
       };
       chart.setOption(option);
 
-      for (let x = -3; x <= 3; x += 0.1) {
+      for (let x = Xmin; x <= Xmax; x += 0.1) {
         var pointParm;
         if (type === 'sin') {
           pointParm = [x, Math.sin(x)]

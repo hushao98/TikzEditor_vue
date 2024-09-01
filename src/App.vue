@@ -22,6 +22,7 @@
               <el-col :span="12">
                 <DrawingCanvas ref="drawingCanvas" />
                 <LineChart ref="lineChart"/>
+                <PDFViewer ref="pdfViewer"/>
               </el-col>
 
               <!-- TikZ Code Display Area -->
@@ -32,7 +33,7 @@
                       type="textarea"
                       :rows="15"
                       v-model="tikzCode"
-                      readonly>
+                      >
                   </el-input>
                 </div>
                 <el-button type="primary" @click="sendToBackend">Generate TikZ Code</el-button>
@@ -44,9 +45,10 @@
                       type="textarea"
                       :rows="15"
                       v-model="tikzCode"
-                      readonly>
+                      >
                   </el-input>
                 </div>
+                <el-button type="primary" @click="fetchPDF">PDF Show</el-button>
               </el-col>
             </el-row>
           </el-main>
@@ -60,16 +62,38 @@
 import DrawingCanvas from './components/DrawingCanvas.vue';
 import ControlPanel from './components/ControlPanel.vue';
 import LineChart from './components/LineChart.vue'
+import PDFViewer from "./components/PDFViewer.vue";
 
 export default {
+  computed: {
+    PDFViewer() {
+      return PDFViewer
+    }
+  },
   components: {
     DrawingCanvas,
     ControlPanel,
     LineChart,
+    PDFViewer
   },
   data() {
     return {
-      tikzCode: '',
+      tikzCode: '\\documentclass{standalone}'+'\n'+
+                '\\usepackage{tikz}'+'\n'+
+                '\\begin{document}'+'\n'+
+                '\\begin{tikzpicture}'+'\n' +
+          '    \\draw (0,0) rectangle (2,2);' + '\n' +
+          '    \\node at (1,1) {Square};' + '\n' +
+          '    \\draw (4,1) circle (1);' + '\n' +
+          '    \\node at (4,1) {Circle};' + '\n' +
+          '\\end{tikzpicture}'+ '\n' +
+          '\\end{document}',
+      // tikzCode: '\\\\begin{tikzpicture}\\n'+
+      //     '    \\\\draw (0,0) rectangle (2,2);\\n' +
+      //     '    \\\\node at (1,1) {Square};\\n' +
+      //     '    \\\\draw (4,1) circle (1);\\n' +
+      //     '    \\\\node at (4,1) {Circle};\\n' +
+      //     '\\\\end{tikzpicture}',
     };
   },
   methods: {
@@ -81,6 +105,10 @@ export default {
     },
     clearCanvas() {
       this.$refs.drawingCanvas.clearCanvas();
+    },
+    fetchPDF() {
+      // this.tikzCode = '{"tikz_code":"'+this.tikzCode+'"}';
+      this.$refs.pdfViewer.fetchPDF(this.tikzCode);
     },
     sendToBackend() {
       this.$refs.drawingCanvas.commitToServe();
