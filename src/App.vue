@@ -96,7 +96,7 @@ export default {
       this.$refs.drawingCanvas.commitToServe();
       const drawingData = this.$refs.drawingCanvas.getDrawingData();
       console.log(drawingData)
-      fetch('http://127.0.0.1:5000/api/generate-graphic', {
+      fetch('http://39.99.245.72:8090/api/generate-graphic', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -123,7 +123,7 @@ export default {
 
       console.log(drawingData)
 
-      fetch('http://127.0.0.1:5000/api/generate-tikz', {
+      fetch('http://39.99.245.72:8090/api/generate-tikz', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

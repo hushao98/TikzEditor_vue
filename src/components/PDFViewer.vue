@@ -31,7 +31,7 @@ export default {
       }
       console.log(drawingData);
       try{
-        const response = await axios.post('http://127.0.0.1:5000/api/generate-graphic', drawingData, {
+        const response = await axios.post('http://39.99.245.72:8090/api/generate-graphic', drawingData, {
           responseType: 'blob'  // 确保响应被处理为Blob对象
         });
         const arrayBuffer = await response.data.arrayBuffer();
